@@ -38,6 +38,20 @@ u64 stub_deadline(unsigned long timeout_us);
 bool stub_expired(u64 deadline, unsigned long reg);
 #define panic(...)		stub_panic()
 
+/*
+ * U-Boot 2026.04 and later (c47b636737) probe DRAM from mctl_calc_size() to
+ * detect non-power-of-2 sized chips. The stub calls it while Linux's memory
+ * is live, so it must never write there: every probe passes and the size
+ * stays the power of two, which the stub only uses to place its save area
+ * and for reporting.
+ */
+static inline bool mctl_check_memory(unsigned long addr)
+{
+	(void)addr;
+	return true;
+}
+#define printf(...)		do { } while (0)
+
 /* Set by the stub: the DRAM driver runs on the resume path. */
 extern bool sunxi_dram_resume;
 #endif /* __ASSEMBLY__ */
